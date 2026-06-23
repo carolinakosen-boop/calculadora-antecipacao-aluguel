@@ -21,23 +21,48 @@ Static site (HTML/CSS/JS) in `/docs` folder. No build step, no CI. Serve locally
 
 ## Key Test Values
 
-Standard test case for calculation verification:
+### Standard test case (flat rate discount)
 
 | Input | Value |
 |---|---|
 | Aluguel mensal | R$ 2.000,00 |
 | Prazo do contrato | 24 meses |
 | Meses a antecipar | 12 meses |
-| Taxa de juros | 2,50% a.m. |
+| Taxa de desconto | 2,50% |
 
 **Expected outputs:**
-- Valor antecipado estimado: **R$ 20.515,53**
+- Valor antecipado estimado: **R$ 23.400,00**
 - Valor total sem desconto: **R$ 24.000,00**
-- Desconto total (juros): **- R$ 3.484,47**
-- Percentual de desconto: **14,52%**
-- Month table: 12 rows, first row value presente = R$ 1.951,22
+- Desconto total (juros): **- R$ 600,00**
+- Percentual de desconto: **2,50%**
+- Month table: 12 rows, each row: R$ 2.000,00 aluguel / R$ 50,00 desconto / R$ 1.950,00 valor liquido
+- Footer: R$ 24.000,00 / R$ 23.400,00
 
-The formula is present value: `VP = Sum(Aluguel / (1 + taxa)^n)` for n=1..N.
+The formula is flat percentage: `Desconto = ValorTotal * (taxa / 100)`, `ValorAntecipado = ValorTotal - Desconto`.
+All monthly rows are uniform (same desconto/liquido per month) since the rate is flat, not compound.
+
+### Secondary test case (different rate)
+
+| Input | Value |
+|---|---|
+| Aluguel mensal | R$ 1.000,00 |
+| Prazo do contrato | 12 meses |
+| Meses a antecipar | 6 meses |
+| Taxa de desconto | 5,00% |
+
+**Expected outputs:**
+- Valor antecipado estimado: **R$ 5.700,00**
+- Valor total sem desconto: **R$ 6.000,00**
+- Desconto total: **- R$ 300,00**
+- Percentual: **5,00%**
+- Each row: R$ 50,00 desconto / R$ 950,00 liquido
+
+## UI Labels
+
+Current labels (as of PR #4):
+- Rate field label: **"Taxa de desconto"** (NOT "Taxa de juros mensal")
+- Rate suffix: **"%"** (NOT "% a.m.")
+- Table headers: **Mes | Aluguel | Desconto | Valor liquido** (NOT "Fator de desconto" or "Valor presente")
 
 ## Color Theme
 
@@ -66,8 +91,9 @@ Should return zero matches.
 ### Calculation Tests
 - Use the standard test values above
 - Verify all 4 result cards match expected values exactly
-- Verify 12-row month-by-month table renders
+- Verify table rows are **uniform** (same desconto per row = flat rate confirmed)
 - Check disclaimer text appears at bottom
+- Test with a second set of inputs to confirm formula works generally
 
 ### Responsive Tests
 - Use Chrome DevTools responsive mode (Ctrl+Shift+M with DevTools open)
@@ -76,7 +102,7 @@ Should return zero matches.
 ## Tips
 
 - The currency input has a mask — type digits only (e.g., type `200000` for R$ 2.000,00)
-- The interest rate input also has a mask — type `250` for 2,50%
+- The rate input does NOT auto-format — type the value directly with comma (e.g., `2,50` not `250`)
 - Results panel appears with slide-down animation after clicking "Calcular Antecipacao"
 - No authentication or API calls — everything is client-side
 - No CI configured — rely on local testing only
