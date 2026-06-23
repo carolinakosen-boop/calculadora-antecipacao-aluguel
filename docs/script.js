@@ -1,8 +1,9 @@
 /**
  * Calculadora de Antecipação de Aluguel
  *
- * Fórmula: Valor Presente = Σ (Aluguel / (1 + taxa)^n), n = 1..N
- * Equivalente a: VP = Aluguel × [(1 - (1 + taxa)^(-N)) / taxa]
+ * Fórmula: Desconto = ValorTotal × (taxa / 100)
+ * ValorAntecipado = ValorTotal - Desconto
+ * A taxa é aplicada sobre o valor total, não composta mensalmente.
  */
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -64,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
             valid = false;
         }
         if (isNaN(taxa) || taxa <= 0) {
-            showError(taxaInput, 'Informe uma taxa de juros válida');
+            showError(taxaInput, 'Informe uma taxa de desconto válida');
             valid = false;
         }
         if (valid && antecipacao > contrato) {
@@ -78,24 +79,23 @@ document.addEventListener('DOMContentLoaded', function () {
         exibirResultados(result, aluguel, antecipacao);
     });
 
-    function calcularAntecipacao(aluguel, meses, taxaMensal) {
-        var parcelas = [];
-        var totalPresente = 0;
+    function calcularAntecipacao(aluguel, meses, taxa) {
+        var valorTotal = aluguel * meses;
+        var desconto = valorTotal * taxa;
+        var totalPresente = valorTotal - desconto;
+        var descontoMensal = aluguel * taxa;
+        var valorLiquidoMensal = aluguel - descontoMensal;
 
+        var parcelas = [];
         for (var n = 1; n <= meses; n++) {
-            var fator = Math.pow(1 + taxaMensal, n);
-            var valorPresente = aluguel / fator;
-            totalPresente += valorPresente;
             parcelas.push({
                 mes: n,
                 aluguel: aluguel,
-                fator: fator,
-                valorPresente: valorPresente
+                desconto: descontoMensal,
+                valorLiquido: valorLiquidoMensal
             });
         }
 
-        var valorTotal = aluguel * meses;
-        var desconto = valorTotal - totalPresente;
         var percentualDesconto = (desconto / valorTotal) * 100;
 
         return {
@@ -125,8 +125,8 @@ document.addEventListener('DOMContentLoaded', function () {
             tr.innerHTML =
                 '<td>' + p.mes + '</td>' +
                 '<td>' + formatCurrency(p.aluguel) + '</td>' +
-                '<td>' + p.fator.toFixed(6).replace('.', ',') + '</td>' +
-                '<td>' + formatCurrency(p.valorPresente) + '</td>';
+                '<td>' + formatCurrency(p.desconto) + '</td>' +
+                '<td>' + formatCurrency(p.valorLiquido) + '</td>';
             tbody.appendChild(tr);
         });
 
