@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Antecipação de Aluguel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="12" fill="url(#gradient)"/>
+                    <path d="M12 28V16L20 12L28 16V28L20 24L12 28Z" stroke="white" stroke-width="2" stroke-linejoin="round" fill="none"/>
+                    <path d="M20 12V24" stroke="white" stroke-width="2"/>
+                    <defs>
+                        <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
+                            <stop stop-color="#6366f1"/>
+                            <stop offset="1" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h1>Antecipação de Aluguel</h1>
+            </div>
+            <p class="subtitle">Calcule quanto você pode antecipar do valor do seu aluguel</p>
+        </header>
+
+        <main class="calculator-wrapper">
+            <form class="calculator-form" id="calculatorForm" novalidate>
+                <div class="form-group">
+                    <label for="aluguel">Valor do aluguel mensal</label>
+                    <div class="input-wrapper currency">
+                        <span class="prefix">R$</span>
+                        <input
+                            type="text"
+                            id="aluguel"
+                            inputmode="decimal"
+                            placeholder="2.000,00"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contrato">Prazo do contrato</label>
+                        <div class="input-wrapper">
+                            <input
+                                type="number"
+                                id="contrato"
+                                min="1"
+                                max="120"
+                                placeholder="24"
+                                required
+                            >
+                            <span class="suffix">meses</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="antecipacao">Meses a antecipar</label>
+                        <div class="input-wrapper">
+                            <input
+                                type="number"
+                                id="antecipacao"
+                                min="1"
+                                max="120"
+                                placeholder="12"
+                                required
+                            >
+                            <span class="suffix">meses</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="taxa">Taxa de juros mensal</label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="taxa"
+                            inputmode="decimal"
+                            placeholder="2,50"
+                            required
+                        >
+                        <span class="suffix">% a.m.</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-calcular" id="btnCalcular">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M6 3H14C14.5523 3 15 3.44772 15 4V16C15 16.5523 14.5523 17 14 17H6C5.44772 17 5 16.5523 5 16V4C5 3.44772 5.44772 3 6 3Z" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M8 7H12M8 10H10M12 10H12.01M8 13H10M12 13H12.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    Calcular Antecipação
+                </button>
+            </form>
+
+            <div class="results-panel" id="resultsPanel">
+                <div class="results-header">
+                    <h2>Resultado da Simulação</h2>
+                </div>
+
+                <div class="result-cards">
+                    <div class="result-card highlight">
+                        <span class="result-label">Valor antecipado estimado</span>
+                        <span class="result-value" id="valorAntecipado">—</span>
+                        <span class="result-description">Valor líquido que você receberia hoje</span>
+                    </div>
+                    <div class="result-card">
+                        <span class="result-label">Valor total sem desconto</span>
+                        <span class="result-value" id="valorTotal">—</span>
+                        <span class="result-description">Soma dos aluguéis no período</span>
+                    </div>
+                    <div class="result-card">
+                        <span class="result-label">Desconto total (juros)</span>
+                        <span class="result-value discount" id="desconto">—</span>
+                        <span class="result-description">Diferença entre valor total e antecipado</span>
+                    </div>
+                    <div class="result-card">
+                        <span class="result-label">Percentual de desconto</span>
+                        <span class="result-value" id="percentual">—</span>
+                        <span class="result-description">Proporção do desconto sobre o total</span>
+                    </div>
+                </div>
+
+                <div class="breakdown-section">
+                    <h3>Detalhamento mensal</h3>
+                    <div class="table-wrapper">
+                        <table class="breakdown-table" id="tabelaDetalhamento">
+                            <thead>
+                                <tr>
+                                    <th>Mês</th>
+                                    <th>Aluguel</th>
+                                    <th>Fator de desconto</th>
+                                    <th>Valor presente</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="disclaimer">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M10 9V14M10 6.5V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <p>
+                        <strong>Aviso importante:</strong> Este é um cálculo médio estimativo, fornecido apenas para fins de referência.
+                        Os valores reais estão sujeitos a análise de crédito, condições de mercado e políticas da instituição financeira.
+                        Consulte uma empresa especializada para obter valores definitivos.
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Calculadora de Antecipação de Aluguel &copy; <span id="currentYear"></span></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
